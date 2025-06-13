@@ -1,4 +1,4 @@
-import { LegoCharacter } from './characterModels.js';
+import { LegoCharacter } from './LegoCharacter.js';
 
 export class Character {
     constructor(scene, camera, characterType) {
@@ -12,7 +12,8 @@ export class Character {
             forward: false,
             backward: false,
             left: false,
-            right: false
+            right: false,
+            interact: false
         };
         
         this.createCharacter();
@@ -40,6 +41,7 @@ export class Character {
             case 's': this.keys.backward = true; break;
             case 'a': this.keys.left = true; break;
             case 'd': this.keys.right = true; break;
+            case 'e': this.keys.interact = true; break;
         }
     }
 
@@ -49,11 +51,31 @@ export class Character {
             case 's': this.keys.backward = false; break;
             case 'a': this.keys.left = false; break;
             case 'd': this.keys.right = false; break;
+            case 'e': this.keys.interact = false; break;
+        }
+    }
+
+    checkBuildingInteractions() {
+        if (!this.scene.buildings) return;
+        
+        const nearestBuilding = this.scene.buildings.checkCollisions(this.character);
+        if (nearestBuilding) {
+            document.getElementById('project-info').textContent = `Press 'E' to enter ${nearestBuilding}`;
+            document.getElementById('project-info').style.display = 'block';
+            
+            if (this.keys.interact) {
+                // Handle building entry
+                console.log(`Entering ${nearestBuilding}`);
+                // Add building entry logic here
+            }
+        } else {
+            document.getElementById('project-info').style.display = 'none';
         }
     }
 
     update() {
         if (this.character) {
+            // Movement
             if (this.keys.forward) {
                 this.character.position.z -= Math.cos(this.character.rotation.y) * this.moveSpeed;
                 this.character.position.x -= Math.sin(this.character.rotation.y) * this.moveSpeed;
@@ -78,6 +100,9 @@ export class Character {
             
             this.camera.position.copy(this.character.position).add(cameraOffset);
             this.camera.lookAt(this.character.position);
+
+            // Check building interactions
+            this.checkBuildingInteractions();
         }
     }
 }

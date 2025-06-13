@@ -1,3 +1,5 @@
+import { Buildings } from './buildings.js';
+
 export class World {
     constructor() {
         this.scene = new THREE.Scene();
@@ -6,8 +8,10 @@ export class World {
             canvas: document.querySelector('#world'),
             antialias: true
         });
+        this.clock = new THREE.Clock();
         
         this.init();
+        this.buildings = new Buildings(this.scene); // Initialize buildings
     }
 
     init() {
@@ -54,6 +58,10 @@ export class World {
     }
 
     render() {
+        const time = this.clock.getElapsedTime();
+        if (this.buildings) {
+            this.buildings.update(time);
+        }
         this.renderer.render(this.scene, this.camera);
     }
 }
