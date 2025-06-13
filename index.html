@@ -14,16 +14,47 @@
     <canvas id="world"></canvas>
     <div id="project-info"></div>
 
-    <!-- Three.js and its extensions -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <!-- Import Three.js from CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.159.0/three.min.js"></script>
     
     <!-- Your JavaScript files -->
-    <script src="js/utils/loader.js" type="module"></script>
-    <script src="js/world.js" type="module"></script>
-    <script src="js/character.js" type="module"></script>
-    <script src="js/buildings.js" type="module"></script>
-    <script src="js/main.js" type="module"></script>
+    <script type="module">
+        import { World } from './js/world.js';
+        import { Character } from './js/character.js';
+
+        class Game {
+            constructor() {
+                this.init();
+            }
+
+            init() {
+                this.world = new World();
+                this.character = new Character(this.world.scene, this.world.camera);
+                
+                // Start animation loop
+                this.animate();
+
+                // Handle window resize
+                window.addEventListener('resize', () => {
+                    this.world.onWindowResize();
+                });
+            }
+
+            animate() {
+                requestAnimationFrame(() => this.animate());
+                
+                // Update character
+                this.character.update();
+                
+                // Render scene
+                this.world.render();
+            }
+        }
+
+        // Start the application when the window loads
+        window.addEventListener('load', () => {
+            new Game();
+        });
+    </script>
 </body>
 </html>

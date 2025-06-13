@@ -1,17 +1,15 @@
 import { World } from './world.js';
 import { Character } from './character.js';
-import { Buildings } from './buildings.js';
 
 class Game {
     constructor() {
-        this.world = new World();
-        this.character = new Character(this.world.scene, this.world.camera);
-        this.buildings = new Buildings(this.world.scene);
-        
         this.init();
     }
 
     init() {
+        this.world = new World();
+        this.character = new Character(this.world.scene, this.world.camera);
+        
         // Start animation loop
         this.animate();
 

@@ -11,9 +11,12 @@ export class World {
     }
 
     init() {
+        // Set background color
+        this.scene.background = new THREE.Color(0x87ceeb); // Sky blue color
+
         // Setup renderer
         this.renderer.setSize(window.innerWidth, window.innerHeight);
-        this.renderer.setPixelRatio(window.devicePixelRatio);
+        this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         this.renderer.shadowMap.enabled = true;
 
         // Setup camera
@@ -39,6 +42,9 @@ export class World {
         ground.rotation.x = -Math.PI / 2;
         ground.receiveShadow = true;
         this.scene.add(ground);
+
+        // Hide loading screen
+        document.getElementById('loading-screen').style.display = 'none';
     }
 
     onWindowResize() {
