@@ -4,56 +4,118 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portfolio World</title>
-    <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* Add immediate styles to prevent FOUC */
+        body { margin: 0; background: #333; }
+        .character-selection {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+        .character-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .character-option {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        .character-option:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
+        .character-option.selected {
+            background: rgba(0, 255, 0, 0.2);
+            border: 2px solid #00ff00;
+        }
+        #start-game {
+            padding: 15px 30px;
+            font-size: 18px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            opacity: 0.6;
+            transition: all 0.3s ease;
+        }
+        #start-game:not([disabled]) {
+            opacity: 1;
+        }
+        #start-game:not([disabled]):hover {
+            background: #45a049;
+            transform: scale(1.05);
+        }
+        .preview-container {
+            width: 150px;
+            height: 150px;
+            margin: 0 auto 10px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #loading-screen {
+            display: none; /* Hide the loading text */
+        }
+    </style>
 </head>
 <body>
-    <div id="loading-screen">
-        <div class="loader">Loading...</div>
-    </div>
+    <div id="loading-screen">Loading...</div>
     
+    <div id="character-selection" class="character-selection">
+        <h2>Choose Your Character</h2>
+        <div class="character-grid">
+            <div class="character-option" data-character="casual">
+                <div class="preview-container" id="preview-casual"></div>
+                <p>Casual</p>
+            </div>
+            <div class="character-option" data-character="farmer">
+                <div class="preview-container" id="preview-farmer"></div>
+                <p>Farmer</p>
+            </div>
+            <div class="character-option" data-character="adventurer">
+                <div class="preview-container" id="preview-adventurer"></div>
+                <p>Adventurer</p>
+            </div>
+            <div class="character-option" data-character="student">
+                <div class="preview-container" id="preview-student"></div>
+                <p>Student</p>
+            </div>
+            <div class="character-option" data-character="professional">
+                <div class="preview-container" id="preview-professional"></div>
+                <p>Professional</p>
+            </div>
+        </div>
+        <button id="start-game" disabled>Start Adventure</button>
+    </div>
+
     <canvas id="world"></canvas>
     <div id="project-info"></div>
 
-    <!-- Import Three.js from CDN -->
+    <!-- Load Three.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.159.0/three.min.js"></script>
     
-    <!-- Your JavaScript files -->
+    <!-- Load our modules -->
     <script type="module">
-        import { World } from './js/world.js';
-        import { Character } from './js/character.js';
-
-        class Game {
-            constructor() {
-                this.init();
-            }
-
-            init() {
-                this.world = new World();
-                this.character = new Character(this.world.scene, this.world.camera);
-                
-                // Start animation loop
-                this.animate();
-
-                // Handle window resize
-                window.addEventListener('resize', () => {
-                    this.world.onWindowResize();
-                });
-            }
-
-            animate() {
-                requestAnimationFrame(() => this.animate());
-                
-                // Update character
-                this.character.update();
-                
-                // Render scene
-                this.world.render();
-            }
-        }
-
-        // Start the application when the window loads
+        import { Game } from './js/main.js';
         window.addEventListener('load', () => {
-            new Game();
+            window.game = new Game();
         });
     </script>
 </body>

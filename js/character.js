@@ -1,7 +1,10 @@
+import { LegoCharacter } from './characterModels.js';
+
 export class Character {
-    constructor(scene, camera) {
+    constructor(scene, camera, characterType) {
         this.scene = scene;
         this.camera = camera;
+        this.characterType = characterType;
         this.character = null;
         this.moveSpeed = 0.1;
         this.rotationSpeed = 0.05;
@@ -12,21 +15,17 @@ export class Character {
             right: false
         };
         
-        this.init();
+        this.createCharacter();
         this.setupControls();
     }
 
-    init() {
-        // Temporary character (cube)
-        const geometry = new THREE.BoxGeometry(1, 2, 1);
-        const material = new THREE.MeshPhongMaterial({ color: 0x00ff00 });
-        this.character = new THREE.Mesh(geometry, material);
-        this.character.position.y = 1;
-        this.character.castShadow = true;
+    createCharacter() {
+        this.character = LegoCharacter.createCharacter(this.characterType);
+        this.character.position.y = 0.15; // Adjust to stand on ground
         this.scene.add(this.character);
 
         // Position camera behind character
-        this.camera.position.set(0, 3, 5);
+        this.camera.position.set(0, 2, 5);
         this.camera.lookAt(this.character.position);
     }
 
@@ -73,7 +72,7 @@ export class Character {
             // Update camera position
             const cameraOffset = new THREE.Vector3(
                 Math.sin(this.character.rotation.y) * 5,
-                3,
+                2,
                 Math.cos(this.character.rotation.y) * 5
             );
             
