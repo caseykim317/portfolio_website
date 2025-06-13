@@ -1,7 +1,12 @@
+import { ProjectPage } from './ProjectPage.js';
+import { projectData } from './projectData.js';
+
 export class Buildings {
     constructor(scene) {
         this.scene = scene;
         this.buildings = new Map();
+        this.projectPages = new Map();
+        console.log('Buildings initialized');
         this.createBuildings();
     }
 
@@ -64,63 +69,32 @@ export class Buildings {
             config.size.depth
         );
 
-        // Create material with custom shader for glowing effect
-        const material = new THREE.ShaderMaterial({
-            uniforms: {
-                time: { value: 0 },
-                baseColor: { value: new THREE.Color(config.color) }
-            },
-            vertexShader: `
-                varying vec2 vUv;
-                void main() {
-                    vUv = uv;
-                    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-                }
-            `,
-            fragmentShader: `
-                uniform float time;
-                uniform vec3 baseColor;
-                varying vec2 vUv;
-                
-                void main() {
-                    float glow = sin(time * 2.0) * 0.5 + 0.5;
-                    vec3 color = baseColor * (1.0 + glow * 0.2);
-                    gl_FragColor = vec4(color, 1.0);
-                }
-            `
+        // Use MeshStandardMaterial instead of ShaderMaterial
+        const material = new THREE.MeshStandardMaterial({
+            color: config.color,
+            metalness: 0.3,
+            roughness: 0.4
         });
 
         const building = new THREE.Mesh(geometry, material);
-        building.position.set(config.position.x, config.position.y + config.size.height / 2, config.position.z);
+        building.position.set(
+            config.position.x,
+            config.position.y + config.size.height / 2,
+            config.position.z
+        );
         building.castShadow = true;
         building.receiveShadow = true;
-
-        // Add interaction box (slightly larger than the building)
-        const interactionGeometry = new THREE.BoxGeometry(
-            config.size.width + 2,
-            config.size.height,
-            config.size.depth + 2
-        );
-        const interactionMaterial = new THREE.MeshBasicMaterial({
-            transparent: true,
-            opacity: 0,
-            visible: false
-        });
-        const interactionBox = new THREE.Mesh(interactionGeometry, interactionMaterial);
-        interactionBox.position.copy(building.position);
 
         // Store building info
         this.buildings.set(name, {
             mesh: building,
-            interactionBox: interactionBox,
             config: config
         });
 
         // Add to scene
         this.scene.add(building);
-        this.scene.add(interactionBox);
 
-        // Add floating text above building
+        // Add text label above building
         this.addBuildingLabel(name, building.position, config.size.height);
     }
 
@@ -130,17 +104,21 @@ export class Buildings {
         canvas.width = 256;
         canvas.height = 64;
 
-        context.fillStyle = '#ffffff';
-        context.font = '32px Arial';
+        context.fillStyle = 'white';
+        context.font = '24px Arial';
         context.textAlign = 'center';
+        context.textBaseline = 'middle';
         context.fillText(this.formatBuildingName(name), canvas.width/2, canvas.height/2);
 
         const texture = new THREE.CanvasTexture(canvas);
-        const spriteMaterial = new THREE.SpriteMaterial({ map: texture });
+        const spriteMaterial = new THREE.SpriteMaterial({ 
+            map: texture,
+            sizeAttenuation: true
+        });
         const sprite = new THREE.Sprite(spriteMaterial);
         
         sprite.position.set(position.x, position.y + height/2 + 1, position.z);
-        sprite.scale.set(5, 1.25, 1);
+        sprite.scale.set(2, 0.5, 1);
         
         this.scene.add(sprite);
     }
@@ -148,23 +126,17 @@ export class Buildings {
     formatBuildingName(name) {
         return name
             .replace(/([A-Z])/g, ' $1')
-            .replace(/^./, str => str.toUpperCase());
+            .replace(/^./, str => str.toUpperCase())
+            .trim();
     }
 
-    update(time) {
-        // Update building materials (for glow effect)
-        this.buildings.forEach(building => {
-            building.mesh.material.uniforms.time.value = time;
-        });
-    }
-
-    checkCollisions(character) {
+    checkCollisions(characterPosition) {
         let nearestBuilding = null;
         let minDistance = Infinity;
 
         this.buildings.forEach((building, name) => {
-            const distance = character.position.distanceTo(building.mesh.position);
-            if (distance < 7) { // Interaction radius
+            const distance = characterPosition.distanceTo(building.mesh.position);
+            if (distance < 7) {
                 if (distance < minDistance) {
                     minDistance = distance;
                     nearestBuilding = name;
@@ -173,5 +145,38 @@ export class Buildings {
         });
 
         return nearestBuilding;
+    }
+
+    enterBuilding(buildingName) {
+        console.log('Entering building:', buildingName);
+        
+        if (!this.projectPages.has(buildingName)) {
+            console.log('Creating new project page for:', buildingName);
+            const data = projectData[buildingName] || {};
+            const projectPage = new ProjectPage(buildingName, data);
+            this.projectPages.set(buildingName, projectPage);
+        }
+        
+        const projectPage = this.projectPages.get(buildingName);
+        if (projectPage) {
+            console.log('Showing project page for:', buildingName);
+            projectPage.show();
+        }
+    }
+
+    exitBuilding(buildingName) {
+        if (this.projectPages && this.projectPages[buildingName]) {
+            this.projectPages[buildingName].hide();
+        }
+    }
+
+    update(time) {
+        // Simple update for buildings (can be expanded later)
+        this.buildings.forEach((building) => {
+            if (building.mesh.material.emissive) {
+                building.mesh.material.emissive.setHex(building.mesh.material.color.getHex());
+                building.mesh.material.emissiveIntensity = 0.2 + Math.sin(time * 2) * 0.1;
+            }
+        });
     }
 }

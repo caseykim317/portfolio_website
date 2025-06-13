@@ -3,6 +3,9 @@ import { Buildings } from './buildings.js';
 export class World {
     constructor() {
         this.scene = new THREE.Scene();
+        // Add buildings as a property of the scene
+        this.scene.buildings = null;
+        
         this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         this.renderer = new THREE.WebGLRenderer({
             canvas: document.querySelector('#world'),
@@ -11,7 +14,8 @@ export class World {
         this.clock = new THREE.Clock();
         
         this.init();
-        this.buildings = new Buildings(this.scene); // Initialize buildings
+        // Initialize buildings and assign to scene
+        this.scene.buildings = new Buildings(this.scene);
     }
 
     init() {
@@ -59,8 +63,8 @@ export class World {
 
     render() {
         const time = this.clock.getElapsedTime();
-        if (this.buildings) {
-            this.buildings.update(time);
+        if (this.scene.buildings) {
+            this.scene.buildings.update(time);
         }
         this.renderer.render(this.scene, this.camera);
     }

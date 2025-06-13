@@ -42,6 +42,7 @@ export class Game {
 
     startGame(characterType) {
         this.world = new World();
+        // Make sure the buildings are initialized before creating the character
         this.character = new Character(this.world.scene, this.world.camera, characterType);
         
         // Start animation loop
@@ -55,8 +56,12 @@ export class Game {
 
     animate() {
         requestAnimationFrame(() => this.animate());
-        if (this.character) this.character.update();
-        if (this.world) this.world.render();
+        if (this.character) {
+            this.character.update();
+        }
+        if (this.world) {
+            this.world.render();
+        }
     }
 }
 

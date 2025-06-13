@@ -15,6 +15,7 @@ export class Character {
             right: false,
             interact: false
         };
+        this.nearestBuilding = null;
         
         this.createCharacter();
         this.setupControls();
@@ -41,7 +42,13 @@ export class Character {
             case 's': this.keys.backward = true; break;
             case 'a': this.keys.left = true; break;
             case 'd': this.keys.right = true; break;
-            case 'e': this.keys.interact = true; break;
+            case 'e': 
+                this.keys.interact = true;
+                if (this.nearestBuilding) {
+                    console.log('E key pressed near building:', this.nearestBuilding);
+                    this.scene.buildings.enterBuilding(this.nearestBuilding);
+                }
+                break;
         }
     }
 
@@ -56,17 +63,22 @@ export class Character {
     }
 
     checkBuildingInteractions() {
-        if (!this.scene.buildings) return;
+        if (!this.scene.buildings) {
+            console.log('Waiting for buildings system...');
+            return;
+        }
         
-        const nearestBuilding = this.scene.buildings.checkCollisions(this.character);
+        const nearestBuilding = this.scene.buildings.checkCollisions(this.character.position);
+        
         if (nearestBuilding) {
+            console.log('Near building:', nearestBuilding);
             document.getElementById('project-info').textContent = `Press 'E' to enter ${nearestBuilding}`;
             document.getElementById('project-info').style.display = 'block';
             
             if (this.keys.interact) {
-                // Handle building entry
-                console.log(`Entering ${nearestBuilding}`);
-                // Add building entry logic here
+                console.log('Attempting to enter building:', nearestBuilding);
+                this.scene.buildings.enterBuilding(nearestBuilding);
+                this.keys.interact = false;
             }
         } else {
             document.getElementById('project-info').style.display = 'none';
