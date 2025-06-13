@@ -1,1 +1,29 @@
-asdfasfdsafa
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio World</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="loading-screen">
+        <div class="loader">Loading...</div>
+    </div>
+    
+    <canvas id="world"></canvas>
+    <div id="project-info"></div>
+
+    <!-- Three.js and its extensions -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    
+    <!-- Your JavaScript files -->
+    <script src="js/utils/loader.js" type="module"></script>
+    <script src="js/world.js" type="module"></script>
+    <script src="js/character.js" type="module"></script>
+    <script src="js/buildings.js" type="module"></script>
+    <script src="js/main.js" type="module"></script>
+</body>
+</html>
